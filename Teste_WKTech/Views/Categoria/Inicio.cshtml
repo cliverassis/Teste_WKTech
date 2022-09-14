@@ -1,0 +1,538 @@
+﻿@model Teste_WKTech.Models.ViewModel.WKCategoriaMView
+@{
+    ViewData["Title"] = "Categorias";
+}
+
+<div class="row">
+    <div class="container">
+        <div class="input-group" style="margin-top:15px;">
+            <input type="text" class="form-control" placeholder="Pesquisar Categoria..." id="container-search">
+            <span class="input-group-addon  btn btn-info" style="color: white; background-color: #5bc0de; border-color: #5bc0de;" onclick="searchItens();"><span class="fas fa-search" style="margin-right: 5px;"></span>Pesquisar</span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div id="contentCategoria" class="col-lg-12" style="margin-bottom: 10px;">
+        @if (Model.listaCategoria.Count() == 0)
+        {
+            <h6>Nenhuma categoria cadastrada!</h6>
+        }
+        else
+        {
+            <table id="tbCategoria" class="table table-bordered table-resonsive">
+                <thead>
+                    <tr>
+                        <th class="col-lg-8">Categoria</th>
+                        <th class="col-lg-3" style="text-align: center;">Produtos</th>
+                        <th style="text-align: center;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="bodyTableCategoria">
+                    @foreach (Teste_WKTech.Models.WKCategoria categoria in Model.listaCategoria)
+                    {
+                        <tr>
+                            <td><label>@categoria.nome</label></td>
+                            <td>
+                                <ul id="listaProd">
+                                    @foreach (Teste_WKTech.Models.WKProduto prod in categoria.listaProduto)
+                                    {
+                                        <li data-id="@prod.id">@prod.nome</li>
+                                    }
+                                </ul>
+                            </td>
+                            <td style="text-align: center;">
+                                <div class="btn-group">
+                                    <button class="btn btn-edit" style="outline: 0; box-shadow: none;" data-id="@categoria.id" data-nome="@categoria.nome" type="button"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button class="btn btn-delete" style="outline: 0; box-shadow: none;" data-id="@categoria.id" type="button"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+    <div class="col-lg-12 text-center" style="margin-top: 15px;">
+        <button id="btnModalCadastrar" class="btn btn-primary col-lg-12" type="button">Cadastrar Categoria</button>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEditarCategoria" tabindex="-1" role="dialog" aria-labelledby="modalEditarCategoriaLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditarCategoriaLabel">Editar Categoria</h5>
+            </div>
+            <div class="modal-body">
+                <div class="col-lg-12">
+                    <div class="col-lg-12" style="padding: 0px;">
+                        <input id="nomeEditarCategoria" class="form-control" type="text" placeholder="Nome da Categoria" />
+                        <label id="alertEditarNome" class="text-danger col-lg-12 d-none" style="font-size: small; text-align: right;">Favor preencher o nome da Categoria!</label>
+                        <div style="margin-top: 5px;">
+                            <label>Lista Produtos</label>
+                            <ul id="listaEditarProduto" class="list-group"></ul>
+                            <div class="button-group" style="text-align: right;">
+                                <button id="btnEditarAddProd" class="btn btn-default" style="border: 1px solid black;"><i class="fa-solid fa-plus"></i></button>
+                                <button id="btnEditarMinusProd" class="btn btn-default" style="border: 1px solid black;"><i class="fa-solid fa-minus"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnCancelEditarCategoria" type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button id="btnEditarCategoria" type="button" class="btn btn-primary">Editar Categoria</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCadastrarCategoria" tabindex="-1" role="dialog" aria-labelledby="modalCadastrarCategoriaLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCadastrarCategoriaLabel">Cadastrar Categoria</h5>
+            </div>
+            <div class="modal-body">
+                <div class="col-lg-12">
+                    <div class="col-lg-12" style="padding: 0px;">
+                        <input id="nomeCadastroCategoria" class="form-control" type="text" placeholder="Nome da Categoria" />
+                        <label id="alertNome" class="text-danger col-lg-12 d-none" style="font-size: small; text-align: right;">Favor preencher o nome da Categoria!</label>
+                        <div style="margin-top: 5px;">
+                            <label>Lista Produtos</label>
+                            <ul id="listaCadastroProduto" class="list-group"></ul>
+                            <div class="button-group" style="text-align: right;">
+                                <button id="btnAddProd" class="btn btn-default" style="border: 1px solid black;"><i class="fa-solid fa-plus"></i></button>
+                                <button id="btnMinusProd" class="btn btn-default" style="border: 1px solid black;"><i class="fa-solid fa-minus"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnCancelCadastroCategoria" type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button id="btnCadastrarCategoria" type="button" class="btn btn-primary">Cadastrar Categoria</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDeleteCategoria" tabindex="-1" role="dialog" aria-labelledby="modalDeleteCategoriaLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDeleteCategoriaLabel">Editar Categoria</h5>
+            </div>
+            <div class="modal-body">
+                <div class="col-lg-12">
+                    <h6>Deseja relamente remover o Categoria?</h6>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnCancelDeleteCategoria" type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button id="btnDeleteCategoria" type="button" class="btn btn-primary">Remover Categoria</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalProduto" tabindex="-1" role="dialog" aria-labelledby="modalProdutoLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalProdutoLabel">Produtos</h5>
+            </div>
+            <div class="modal-body">
+                <div class="col-lg-12">
+                    <ul id="listaProdAdd" class="list-group"></ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnCancelAddProduto" type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button id="btnAddProduto" type="button" class="btn btn-primary">Adicionar Produto</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEditarProduto" tabindex="-1" role="dialog" aria-labelledby="modalEditarProdutoLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditarProdutoLabel">Produtos</h5>
+            </div>
+            <div class="modal-body">
+                <div class="col-lg-12">
+                    <ul id="listaProdEdit" class="list-group"></ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnCancelEditarProduto" type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button id="btnEditarProduto" type="button" class="btn btn-primary">Adicionar Produto</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var atualizarPagina = false;
+    $(document).ready(function () {
+        activeButtons();
+        $("#quantidadeCadastroCategoria").inputmask('decimal', {
+            'alias': 'numeric',
+            'groupSeparator': '.',
+            'autoGroup': true,
+            'digits': 0,
+            'radixPoint': ",",
+            'digitsOptional': true,
+            'allowMinus': false,
+            'placeholder': '',
+            'removeMaskOnSubmit': true,
+            'rightAlign': false
+        });
+
+        $("#btnMinusProd").off('click');
+        $("#btnMinusProd").on('click', function () {
+            $("#listaCadastroProduto > .active").remove();
+        });
+
+        $("#btnEditarMinusProd").on('click', function () {
+            $("#listaEditarProduto > .active").remove();
+        });
+
+        $("#btnAddProd").off('click');
+        $("#btnAddProd").on('click', function () {
+            $("#listaProdAdd").empty();
+            $.ajax({
+                url: "@Html.Raw(Url.Action("BuscarProduto", "Produto"))",
+                data: { nome: '' },
+                type: 'POST',
+                    success: function (val) {
+                        var listaProd = JSON.parse(val);
+                        $.each(listaProd, function (index, object) {
+                            var contains = false;
+                            $("#listaCadastroProduto > li").each(function (idx, obj) {
+                                if (!contains) {
+                                    contains = $(obj).attr('data-id') == object.id;
+                                }
+                            });
+
+                            if (!contains) {
+                                $("<li class='list-group-item listaAddProd' data-id='" + object.id + "'>" + object.nome + "</li>").appendTo($("#listaProdAdd"));
+                            }
+
+                        });
+
+                        enableListItem();
+                }
+            });
+
+            $("#modalProduto").modal('show');
+        });
+
+        $("#btnEditarAddProd").off('click');
+        $("#btnEditarAddProd").on('click', function () {
+            $("#listaProdEdit").empty();
+            $.ajax({
+                url: "@Html.Raw(Url.Action("BuscarProduto", "Produto"))",
+                data: { nome: '' },
+                type: 'POST',
+                    success: function (val) {
+                        var listaProd = JSON.parse(val);
+                        $.each(listaProd, function (index, object) {
+                            var contains = false;
+                            $("#listaEditarProduto > li").each(function (idx, obj) {
+                                if (!contains) {
+                                    contains = $(obj).attr('data-id') == object.id;
+                                }
+                            });
+
+                            if (!contains) {
+                                $("<li class='list-group-item listaEditarProd' data-id='" + object.id + "'>" + object.nome + "</li>").appendTo($("#listaProdEdit"));
+                            }
+
+                        });
+
+                        enableListItem();
+                }
+            });
+
+            $("#modalEditarProduto").modal('show');
+        });
+
+        $("#btnModalCadastrar").off('click');
+        $("#btnModalCadastrar").on('click', function () {
+            $("#modalCadastrarCategoria").modal('show');
+        });
+
+        $("#btnCancelCadastroCategoria").off('click');
+        $("#btnCancelCadastroCategoria").on('click', function () {
+            $("#modalCadastrarCategoria").modal('hide');
+        });
+
+        $("#btnCancelAddProduto").off('click');
+        $("#btnCancelAddProduto").on('click', function () {
+            $("#modalProduto").modal('hide');
+        });
+
+        $("#btnCancelEditarProduto").off('click');
+        $("#btnCancelEditarProduto").on('click', function () {
+            $("#modalEditarProduto").modal('hide');
+        });
+
+        $("#btnAddProduto").off('click');
+        $("#btnAddProduto").on('click', function () {
+
+            $("#listaCadastroProduto").append($(".listaAddProd.active").clone());
+            $(".listaAddProd.active").removeClass('active');
+            enableListItem();
+            $("#modalProduto").modal('hide');
+        });
+
+        $("#btnEditarProduto").off('click');
+        $("#btnEditarProduto").on('click', function () {
+
+            $("#listaEditarProduto").append($(".listaEditarProd.active").clone());
+            $(".listaEditarProd.active").removeClass('active');
+            enableListItem();
+            $("#modalEditarProduto").modal('hide');
+        });
+
+
+        $("#btnCancelEditarCategoria").off('click');
+        $("#btnCancelEditarCategoria").on('click', function () {
+            $("#modalEditarCategoria").modal('hide');
+        });
+
+        $("#btnCancelDeleteCategoria").off('click');
+        $("#btnCancelDeleteCategoria").on('click', function () {
+            $("#modalDeleteCategoria").modal('hide');
+        });
+
+        $('#container-search').keyup(function (e) {
+            var current_query = $('#container-search').val().toLowerCase();
+            if (current_query !== "" && e.keyCode == 13) {
+                searchItens();
+            }
+        });
+
+        $("#modalCadastrarCategoria").on('hidden.bs.modal', function () {
+            $("#nomeCadastroCategoria").val('');
+            $("#quantidadeCadastroCategoria").val('');
+            $("#alertNome").addClass('d-none');
+            $("#alertQuantidade").addClass('d-none');
+
+            if (atualizarPagina) {
+                atualizarPagina = false;
+                $(".nav-link.active").click();
+            }
+        });
+
+        $("#modalEditarCategoria").on('hidden.bs.modal', function () {
+            $("#nomeEditarCategoria").val('');
+            $("#quantidadeEditarCategoria").val('');
+            $("#alertEditarNome").addClass('d-none');
+            $("#alertEditarQuantidade").addClass('d-none');
+
+            if (atualizarPagina) {
+                atualizarPagina = false;
+                $(".nav-link.active").click();
+            }
+        });
+
+        $("#modalDeleteCategoria").on('hidden.bs.modal', function () {
+            if (atualizarPagina) {
+                atualizarPagina = false;
+                searchItens();
+            }
+        });
+
+        $("#btnCadastrarCategoria").off('click');
+        $("#btnCadastrarCategoria").on('click', function () {
+            var listaProd = [];
+            $("#listaCadastroProduto > li").each(function (idx, obj) {
+                var prod = { "id": $(obj).attr("data-id") };
+                listaProd.push(prod);
+            });
+
+            var _Categoria = {
+                "nome": $.trim($("#nomeCadastroCategoria").val()),
+                "listaProduto": listaProd
+            };
+            if (_Categoria.nome.length == 0) {
+                $("#alertNome").removeClass('d-none');
+            }
+            else {
+                $.ajax({
+                url: "@Html.Raw(Url.Action("InsertWKCategoria", "Categoria"))",
+                data: { Categoria: _Categoria },
+                type: 'POST',
+                success: function (val) {
+                    if (val == true) {
+                        alert("Categoria cadastrado!");
+                        $("#modalCadastrarCategoria").modal('hide');
+                        atualizarPagina = true;
+                    }
+                    else
+                        alert("Erro ao cadastrar o Categoria!");
+                }
+            });
+            }
+        });
+
+        $("#btnEditarCategoria").off('click');
+        $("#btnEditarCategoria").on('click', function () {
+            var listaProd = [];
+            $("#listaEditarProduto > li").each(function (idx, obj) {
+                var prod = { "id": $(obj).attr("data-id") };
+                listaProd.push(prod);
+            });
+
+            var _Categoria = {
+                "id": $("#btnEditarCategoria").attr('data-id'),
+                "nome": $.trim($("#nomeEditarCategoria").val()),
+                "listaProduto": listaProd
+            };
+            if (_Categoria.nome.length == 0) {
+                $("#alertEditarNome").removeClass('d-none');
+            }
+            else {
+                $.ajax({
+                url: "@Html.Raw(Url.Action("UpdateWKCategoria", "Categoria"))",
+                data: { Categoria: _Categoria },
+                type: 'POST',
+                success: function (val) {
+                    if (val == true) {
+                        alert("Categoria editado!");
+                        atualizarPagina = true;
+                        $("#modalEditarCategoria").modal('hide');
+                    }
+                    else
+                        alert("Erro ao editar o Categoria!");
+                }
+            });
+            }
+        });
+
+        $("#btnDeleteCategoria").off('click');
+        $("#btnDeleteCategoria").on('click', function () {
+
+            $.ajax({
+                url: "@Html.Raw(Url.Action("RemoveWKCategoria", "Categoria"))",
+                data: { id: $("#btnDeleteCategoria").attr('data-id') },
+                type: 'POST',
+                success: function (val) {
+                    if (val == true) {
+                        alert("Categoria removido!");
+                        $("#modalDeleteCategoria").modal('hide');
+                        atualizarPagina = true;
+                    }
+                    else
+                        alert("Erro ao remover o Categoria!");
+                }
+            });
+
+        });
+    });
+
+    function searchItens() {
+        var current_query = $('#container-search').val().toLowerCase();
+        var texto = "";
+
+        if (current_query !== "" && current_query.length > 2) {
+            texto = current_query;
+
+            $.ajax({
+                url: "@Html.Raw(Url.Action("BuscarCategoria", "Categoria"))",
+                data: { nome: texto },
+                type: 'POST',
+                success: function (val) {
+                    updateListaCategoria(JSON.parse(val));
+
+                }
+            });
+        }
+        else if (current_query == "") {
+            $.ajax({
+                url: "@Html.Raw(Url.Action("BuscarCategoria", "Categoria"))",
+                data: { nome: texto },
+                type: 'POST',
+                success: function (val) {
+                    updateListaCategoria(JSON.parse(val));
+
+                }
+            });
+        }
+    }
+
+    function updateListaCategoria(listaCategoria) {
+        $("#bodyTableCategoria").empty();
+        $.each(listaCategoria, function (idx, obj) {
+            var row = $("<tr></tr>");
+            $("<td>" + obj.nome + "</td>").appendTo($(row));
+            var td = $("<td></td>");
+            var list = $("<ul></ul>").appendTo($(td));
+            $(obj.listaProduto).each(function (index, object) {
+                $("<li>" + object.nome + "</li>").appendTo($(list));
+            })
+
+            $(td).appendTo($(row));
+            $("<td style='text-align: center;'><div class='btn-group'><button class='btn btn-edit' style='outline: 0; box-shadow: none;' data-id='" + obj.id + "' data-nome='" + obj.nome + "' data-quantidade='" + obj.quantidade + "' type='button'><i class='fa-solid fa-pen-to-square'></i></button><button class='btn btn-delete' style='outline: 0; box-shadow: none;' data-id='" + obj.id + "' type='button'><i class='fa-solid fa-trash'></i></button></div>" + "</td>").appendTo($(row));
+            $(row).appendTo($("#bodyTableCategoria"));
+        });
+
+        activeButtons();
+    }
+
+    function activeButtons() {
+        $(".btn-edit").off('click');
+        $(".btn-edit").on('click', function () {
+            $("#listaEditarProduto").empty();
+            $("#btnEditarCategoria").attr('data-id', $(this).attr('data-id'));
+            $("#nomeEditarCategoria").val($(this).attr('data-nome'));
+            var listaCategoria = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.listaCategoria));
+            var idCat = $(this).attr('data-id');
+            $.each(listaCategoria, function (index, object) {
+                if (object.id == idCat) {
+                    $.each(object.listaProduto, function (idx, obj) {
+                        $("<li class='list-group-item listaEditarProd' data-id='" + obj.id + "'>" + obj.nome + "</li>").appendTo($("#listaEditarProduto"));
+                    });
+                }
+            });
+
+            enableListItem();
+            $("#modalEditarCategoria").modal('show');
+        });
+
+        $(".btn-delete").off('click');
+        $(".btn-delete").on('click', function () {
+            $("#btnDeleteCategoria").attr('data-id', $(this).attr('data-id'));
+
+            $("#modalDeleteCategoria").modal('show');
+        });
+    }
+
+    function enableListItem() {
+        $(".listaAddProd").off('click');
+        $(".listaAddProd").on('click', function () {
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+            }
+            else {
+                $(this).addClass('active');
+            }
+        });
+
+        $(".listaEditarProd").off('click');
+        $(".listaEditarProd").on('click', function () {
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+            }
+            else {
+                $(this).addClass('active');
+            }
+        });
+    }
+
+</script>
+

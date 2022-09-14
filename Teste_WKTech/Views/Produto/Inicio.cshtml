@@ -1,0 +1,339 @@
+﻿@model Teste_WKTech.Models.ViewModel.WKProdutoMView
+@{
+    ViewData["Title"] = "Produtos";
+}
+
+<div class="row">
+    <div class="container">
+        <div class="input-group" style="margin-top:15px;">
+            <input type="text" class="form-control" placeholder="Pesquisar Produto..." id="container-search">
+            <span class="input-group-addon  btn btn-info" style="color: white; background-color: #5bc0de; border-color: #5bc0de;" onclick="searchItens();"><span class="fas fa-search" style="margin-right: 5px;"></span>Pesquisar</span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div id="contentProduto" class="col-lg-12" style="margin-bottom: 10px;">
+        @if (Model.listaProduto.Count() == 0)
+        {
+            <h6>Nenhum produto cadastrado!</h6>
+        }
+        else
+        {
+                <table id="tbProduto" class="table table-bordered table-resonsive">
+                    <thead>
+                        <tr>
+                            <th class="col-lg-8">Produto</th>
+                            <th class="col-lg-3" style="text-align: center;">Quantidade</th>
+                            <th style="text-align: center;">Ações</th>
+                        </tr>
+                    </thead>
+                        <tbody id="bodyTableProduto">
+                            @foreach (Teste_WKTech.Models.WKProduto produto in Model.listaProduto)
+                            {
+                                <tr>
+                                    <td><label>@produto.nome</label></td>
+                                    <td style="text-align: center;"><label>@produto.quantidade</label></td>
+                                    <td style="text-align: center;">
+                                        <div class="btn-group">
+                                            <button class="btn btn-edit" style="outline: 0; box-shadow: none;" data-id="@produto.id" data-nome="@produto.nome" data-quantidade="@produto.quantidade" type="button"><i class="fa-solid fa-pen-to-square"></i></button>
+                                            <button class="btn btn-delete" style="outline: 0; box-shadow: none;" data-id="@produto.id" type="button"><i class="fa-solid fa-trash"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                </table>
+        }
+    </div>
+    <div class="col-lg-12 text-center" style="margin-top: 15px;">
+        <button id="btnModalCadastrar" class="btn btn-primary col-lg-12" type="button">Cadastrar Produto</button>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEditarProduto" tabindex="-1" role="dialog" aria-labelledby="modalEditarProdutoLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditarProdutoLabel">Editar Produto</h5>
+            </div>
+            <div class="modal-body">
+                <div class="col-lg-12">
+                    <div class="col-lg-12" style="padding: 0px;">
+                        <input id="nomeEditarProduto" class="form-control" type="text" placeholder="Nome do produto" />
+                        <label id="alertEditarNome" class="text-danger col-lg-12 d-none" style="font-size: small; text-align: right;">Favor preencher o nome do produto!</label>
+                        <input id="quantidadeEditarProduto" class="form-control" style="margin-top:15px; text-align: left;" type="text" placeholder="Quantidade de itens do produto" />
+                        <label id="alertEditarQuantidade" class="text-danger col-lg-12 d-none" style="font-size: small; text-align: right;">Favor preencher a quantidade de itens do produto!</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnCancelEditarProduto" type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button id="btnEditarProduto" type="button" class="btn btn-primary">Editar Produto</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCadastrarProduto" tabindex="-1" role="dialog" aria-labelledby="modalCadastrarProdutoLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCadastrarProdutoLabel">Cadastrar Produto</h5>
+            </div>
+            <div class="modal-body">
+                <div class="col-lg-12">
+                    <div class="col-lg-12" style="padding: 0px;">
+                        <input id="nomeCadastroProduto" class="form-control" type="text" placeholder="Nome do produto" />
+                        <label id="alertNome" class="text-danger col-lg-12 d-none" style="font-size: small; text-align: right;">Favor preencher o nome do produto!</label>
+                        <input id="quantidadeCadastroProduto" class="form-control" style="margin-top:15px; text-align: left;" type="text" placeholder="Quantidade de itens do produto" />
+                        <label id="alertQuantidade" class="text-danger col-lg-12 d-none" style="font-size: small; text-align: right;">Favor preencher a quantidade de itens do produto!</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnCancelCadastroProduto" type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button id="btnCadastrarProduto" type="button" class="btn btn-primary">Cadastrar Produto</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDeleteProduto" tabindex="-1" role="dialog" aria-labelledby="modalDeleteProdutoLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDeleteProdutoLabel">Editar Produto</h5>
+            </div>
+            <div class="modal-body">
+                <div class="col-lg-12">
+                    <h6>Deseja relamente remover o produto?</h6>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnCancelDeleteProduto" type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button id="btnDeleteProduto" type="button" class="btn btn-primary">Remover Produto</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var atualizarPagina = false;
+    $(document).ready(function () {
+        activeButtons();
+        $("#quantidadeCadastroProduto").inputmask('decimal', {
+            'alias': 'numeric',
+            'groupSeparator': '.',
+            'autoGroup': true,
+            'digits': 0,
+            'radixPoint': ",",
+            'digitsOptional': true,
+            'allowMinus': false,
+            'placeholder': '',
+            'removeMaskOnSubmit': true,
+            'rightAlign': false
+        });
+
+        $("#btnModalCadastrar").off('click');
+        $("#btnModalCadastrar").on('click', function () {
+            $("#modalCadastrarProduto").modal('show');
+        });
+
+        $("#btnCancelCadastroProduto").off('click');
+        $("#btnCancelCadastroProduto").on('click', function () {
+            $("#modalCadastrarProduto").modal('hide');
+        });
+
+        $("#btnCancelEditarProduto").off('click');
+        $("#btnCancelEditarProduto").on('click', function () {
+            $("#modalEditarProduto").modal('hide');
+        });
+
+        $("#btnCancelDeleteProduto").off('click');
+        $("#btnCancelDeleteProduto").on('click', function () {
+            $("#modalDeleteProduto").modal('hide');
+        });
+
+        $('#container-search').keyup(function (e) {
+            var current_query = $('#container-search').val().toLowerCase();
+            if (current_query !== "" && e.keyCode == 13) {
+                searchItens();
+            }
+        });
+
+        $("#modalCadastrarProduto").on('hidden.bs.modal', function () {
+            $("#nomeCadastroProduto").val('');
+            $("#quantidadeCadastroProduto").val('');
+            $("#alertNome").addClass('d-none');
+            $("#alertQuantidade").addClass('d-none');
+
+            if (atualizarPagina) {
+                atualizarPagina = false;
+                searchItens();
+            }
+        });
+
+        $("#modalEditarProduto").on('hidden.bs.modal', function () {
+            $("#nomeEditarProduto").val('');
+            $("#quantidadeEditarProduto").val('');
+            $("#alertEditarNome").addClass('d-none');
+            $("#alertEditarQuantidade").addClass('d-none');
+
+            if (atualizarPagina) {
+                atualizarPagina = false;
+                searchItens();
+            }
+        });
+
+        $("#modalDeleteProduto").on('hidden.bs.modal', function () {
+            if (atualizarPagina) {
+                atualizarPagina = false;
+                searchItens();
+            }
+        });
+
+        $("#btnCadastrarProduto").off('click');
+        $("#btnCadastrarProduto").on('click', function () {
+            var _produto = {
+                "nome": $.trim($("#nomeCadastroProduto").val()),
+                "quantidade": $.trim($("#quantidadeCadastroProduto").val()),
+            };
+            if (_produto.nome.length == 0) {
+                $("#alertNome").removeClass('d-none');
+            }
+            else if (_produto.quantidade == 0) {
+                $("#alertQuantidade").removeClass('d-none');
+            }
+            else {
+                $.ajax({
+                url: "@Html.Raw(Url.Action("InsertWKProduto", "Produto"))",
+                data: { produto: _produto },
+                type: 'POST',
+                success: function (val) {
+                    if (val == true) {
+                        alert("Produto cadastrado!");
+                        $("#modalCadastrarProduto").modal('hide');
+                        atualizarPagina = true;
+                    }
+                    else
+                        alert("Erro ao cadastrar o produto!");
+                }
+            });
+            }
+        });
+
+        $("#btnEditarProduto").off('click');
+        $("#btnEditarProduto").on('click', function () {
+            var _produto = {
+                "id": $("#btnEditarProduto").attr('data-id'),
+                "nome": $.trim($("#nomeEditarProduto").val()),
+                "quantidade": $.trim($("#quantidadeEditarProduto").val()),
+            };
+            if (_produto.nome.length == 0) {
+                $("#alertEditarNome").removeClass('d-none');
+            }
+            else if (_produto.quantidade == 0) {
+                $("#alertEditarQuantidade").removeClass('d-none');
+            }
+            else {
+                $.ajax({
+                url: "@Html.Raw(Url.Action("UpdateWKProduto", "Produto"))",
+                data: { produto: _produto },
+                type: 'POST',
+                success: function (val) {
+                    if (val == true) {
+                        alert("Produto editado!");
+                        $("#modalEditarProduto").modal('hide');
+                        atualizarPagina = true;
+                    }
+                    else
+                        alert("Erro ao editar o produto!");
+                }
+            });
+            }
+        });
+
+        $("#btnDeleteProduto").off('click');
+        $("#btnDeleteProduto").on('click', function () {
+
+            $.ajax({
+                url: "@Html.Raw(Url.Action("RemoveWKProduto", "Produto"))",
+                data: { id: $("#btnDeleteProduto").attr('data-id') },
+                type: 'POST',
+                success: function (val) {
+                    if (val == true) {
+                        alert("Produto removido!");
+                        $("#modalDeleteProduto").modal('hide');
+                        atualizarPagina = true;
+                    }
+                    else
+                        alert("Erro ao remover o produto!");
+                }
+            });
+
+        });
+    });
+
+    function searchItens() {
+        var current_query = $('#container-search').val().toLowerCase();
+        var texto = "";
+
+        if (current_query !== "" && current_query.length > 2) {
+            texto = current_query;
+
+            $.ajax({
+                url: "@Html.Raw(Url.Action("BuscarProduto", "Produto"))",
+                data: { nome: texto },
+                type: 'POST',
+                success: function (val) {
+                    updateListaProduto(JSON.parse(val));
+
+                }
+            });
+        }
+        else if (current_query == "") {
+            $.ajax({
+                url: "@Html.Raw(Url.Action("BuscarProduto", "Produto"))",
+                data: { nome: texto },
+                type: 'POST',
+                success: function (val) {
+                    updateListaProduto(JSON.parse(val));
+
+                }
+            });
+        }
+    }
+
+    function updateListaProduto(listaProduto) {
+        $("#bodyTableProduto").empty();
+        $.each(listaProduto, function (idx, obj) {
+            var row = $("<tr></tr>");
+            $("<td>" + obj.nome + "</td>").appendTo($(row));
+            $("<td style='text-align: center;'>" + obj.quantidade + "</td>").appendTo($(row));
+            $("<td style='text-align: center;'><div class='btn-group'><button class='btn btn-edit' style='outline: 0; box-shadow: none;' data-id='" + obj.id + "' data-nome='" + obj.nome + "' data-quantidade='" + obj.quantidade + "' type='button'><i class='fa-solid fa-pen-to-square'></i></button><button class='btn btn-delete' style='outline: 0; box-shadow: none;' data-id='" + obj.id + "' type='button'><i class='fa-solid fa-trash'></i></button></div>" + "</td>").appendTo($(row));
+            $(row).appendTo($("#bodyTableProduto"));
+        });
+
+        activeButtons();
+    }
+
+    function activeButtons() {
+        $(".btn-edit").off('click');
+        $(".btn-edit").on('click', function () {
+            $("#btnEditarProduto").attr('data-id', $(this).attr('data-id'));
+            $("#nomeEditarProduto").val($(this).attr('data-nome'));
+            $("#quantidadeEditarProduto").val($(this).attr('data-quantidade'));
+
+            $("#modalEditarProduto").modal('show');
+        });
+
+        $(".btn-delete").off('click');
+        $(".btn-delete").on('click', function () {
+            $("#btnDeleteProduto").attr('data-id', $(this).attr('data-id'));
+
+            $("#modalDeleteProduto").modal('show');
+        });
+    }
+
+</script>
+
