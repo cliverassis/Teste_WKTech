@@ -179,9 +179,15 @@ namespace Teste_WKTech.DAO.CategoriaDAO
                 command.Parameters.Add(new MySqlParameter("nome", categoria.nome));
                 command.ExecuteNonQuery();
 
+                sql = "DELETE FROM WKBD.tb_lig_prod_cat WHERE id_categoria = @id_cat;";
+                command = new MySqlCommand(sql, conn, transaction);
+                command.Parameters.Add(new MySqlParameter("id_cat", categoria.id));
+
+                command.ExecuteNonQuery();
+
                 foreach (WKProduto produto in categoria.listaProduto)
                 {
-                    sql = "DELETE FROM WKBD.tb_lig_prod_cat WHERE id_categoria = @id_cat; INSERT INTO WKBD.tb_lig_prod_cat (id_produto, id_categoria) VALUES (@id_prod, @id_cat);";
+                    sql = "INSERT INTO WKBD.tb_lig_prod_cat (id_produto, id_categoria) VALUES (@id_prod, @id_cat);";
                     command = new MySqlCommand(sql, conn, transaction);
                     command.Parameters.Add(new MySqlParameter("id_prod", produto.id));
                     command.Parameters.Add(new MySqlParameter("id_cat", categoria.id));
